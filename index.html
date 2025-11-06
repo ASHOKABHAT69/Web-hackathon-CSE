@@ -36,7 +36,28 @@
             }
         }
 
-        /* New styles for AI-generated headings */
+        /* Styles for new info cards */
+        .info-card h3 {
+            @apply text-2xl font-bold mb-4 text-sky-800;
+        }
+
+        .info-card .card-grid {
+            @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+        }
+
+        .info-card .data-point {
+            @apply bg-sky-50 p-4 rounded-lg shadow-sm;
+        }
+
+        .info-card .data-label {
+            @apply block text-sm font-medium text-gray-500 mb-1;
+        }
+
+        .info-card .data-value {
+            @apply text-lg font-semibold text-gray-900;
+        }
+
+        /* Fallback summary styles */
         #summaryOutput h3 {
             @apply text-xl font-bold text-sky-800 mt-5 mb-2 border-b-2 border-sky-100 pb-1;
         }
@@ -48,54 +69,86 @@
 </head>
 
 <body class="bg-sky-100 text-gray-900 min-h-screen">
+    <!-- Main container with responsive padding -->
     <div class="container mx-auto max-w-3xl p-4 pt-8 md:pt-12">
 
         <!-- Header -->
         <header class="text-center mb-8">
+            <!-- Responsive text sizing -->
             <h1 class="text-3xl sm:text-4xl font-bold text-sky-800">JaagrukVoter</h1>
             <p class="text-lg text-gray-800 mt-2">Get clear, unbiased facts on candidates & policies.</p>
         </header>
 
         <!-- Input Section -->
         <div class="bg-white p-6 rounded-lg shadow-md mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <!-- Search Query -->
-                <div class="md:col-span-2">
-                    <label for="searchQuery" class="block text-sm font-medium text-gray-700 mb-1">Enter Candidate, Party, or Policy</label>
-                    <input type="text" id="searchQuery"
-                        class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500"
-                        placeholder="e.g., 'Candidate Name', 'Education Policy in Delhi'">
-                </div>
 
-                <!-- Language Selection -->
-                <div>
-                    <label for="language" class="block text-sm font-medium text-gray-700 mb-1">Language</label>
-                    <select id="language"
-                        class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500">
-                        <option value="English">English</option>
-                        <option value="Hindi">Hindi (हिन्दी)</option>
-                        <option value="Kannada">Kannada (ಕನ್ನಡ)</option>
-                        <option value="Tamil">Tamil (தமிழ்)</option>
-                        <option value="Telugu">Telugu (తెలుగు)</option>
-                    </select>
+            <!-- Module 1: Search by Name -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-3">Search by Name, Party, or Policy</h3>
+                <!-- Responsive grid: 1 column on mobile, 3 on desktop -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- Search Query -->
+                    <div class="md:col-span-2">
+                        <label for="searchQuery" class="block text-sm font-medium text-gray-700 mb-1">Enter Candidate, Party, or Policy</label>
+                        <input type="text" id="searchQuery"
+                            class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500"
+                            placeholder="e.g., 'Narendra Modi', 'Indian National Congress'">
+                    </div>
+
+                    <!-- Language Selection -->
+                    <div>
+                        <label for="language" class="block text-sm font-medium text-gray-700 mb-1">Language</label>
+                        <select id="language"
+                            class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500">
+                            <option value="English">English</option>
+                            <option value="Hindi">Hindi (हिन्दी)</option>
+                            <option value="Kannada">Kannada (ಕನ್ನಡ)</option>
+                            <option value="Tamil">Tamil (தமிழ்)</option>
+                            <option value="Telugu">Telugu (తెలుగు)</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Analyze Button -->
+                <div class="mt-6 text-center">
+                    <button id="analyzeButton"
+                        class="w-full md:w-auto bg-gradient-to-r from-sky-600 to-sky-700 text-white font-semibold py-3 px-8 rounded-md hover:from-sky-700 hover:to-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105">
+                        Analyze
+                    </button>
                 </div>
             </div>
 
-            <!-- API Key Input -->
-            <div class="mt-4">
-                <label for="perplexityApiKey" class="block text-sm font-medium text-gray-700 mb-1">Perplexity API Key</label>
+            <!-- Or Separator -->
+            <div class="relative my-6">
+                <div class="absolute inset-0 flex items-center" aria-hidden="true">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center">
+                    <span class="bg-white px-2 text-sm text-gray-500">OR</span>
+                </div>
+            </div>
+
+            <!-- Module 2: Search by Location -->
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 mb-3">Search by Location</h3>
+                <label for="locationQuery" class="block text-sm font-medium text-gray-700 mb-1">Enter Location</label>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <input type="text" id="locationQuery" class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500" placeholder="e.g., 'Jayanagar, Bengaluru'">
+                    <button id="findRepsButton"
+                        class="flex-shrink-0 w-full sm:w-auto bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold py-3 px-6 rounded-md hover:from-green-700 hover:to-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105">
+                        Find Reps
+                    </button>
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Find the MP & MLA for your area.</p>
+            </div>
+
+
+            <!-- Shared API Key Input -->
+            <div class="mt-6 border-t border-gray-200 pt-6">
+                <label for="perplexityApiKey" class="block text-sm font-medium text-gray-700 mb-1">Perplexity API Key (Required for all searches)</label>
                 <input type="password" id="perplexityApiKey"
                     class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500"
                     placeholder="Enter your Perplexity API Key">
                 <p class="text-xs text-gray-500 mt-1">Get a key from the Perplexity API dashboard. Your key is not stored.</p>
-            </div>
-
-            <!-- Analyze Button -->
-            <div class="mt-6 text-center">
-                <button id="analyzeButton"
-                    class="w-full md:w-auto bg-gradient-to-r from-sky-600 to-sky-700 text-white font-semibold py-3 px-8 rounded-md hover:from-sky-700 hover:to-sky-800 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105">
-                    Analyze
-                </button>
             </div>
         </div>
 
@@ -113,6 +166,23 @@
             <span class="block sm:inline" id="errorMessage"></span>
         </div>
 
+        <!-- Representative Selection (NEW) -->
+        <div id="rep-selection" class="bg-white p-6 rounded-lg shadow-md mb-8" style="display: none;">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Select a Representative to Analyze</h3>
+            <p class="text-sm text-gray-600 mb-4">We found these representatives for your area. Select one to get their detailed profile.</p>
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button id="mpButton" data-name=""
+                    class="w-full bg-sky-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-sky-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    ...
+                </button>
+                <button id="mlaButton" data-name=""
+                    class="w-full bg-sky-600 text-white font-semibold py-3 px-6 rounded-md hover:bg-sky-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    ...
+                </button>
+            </div>
+        </div>
+
+
         <!-- Results Section -->
         <div id="results" class="bg-white rounded-lg shadow-lg" style="display: none;">
             <!-- Tabs -->
@@ -121,7 +191,7 @@
                     <button id="tab-summary"
                         class="tab-button w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm text-sky-600 border-sky-500"
                         aria-current="page">
-                        Unbiased Summary
+                        Fact-Based Details
                     </button>
                     <button id="tab-sources"
                         class="tab-button w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300">
@@ -131,14 +201,66 @@
             </div>
 
             <!-- Summary Content -->
-            <div id="content-summary" class="p-6 md:p-8">
-                <h3 class="text-2xl font-bold mb-4 text-sky-800">Fact-Based Summary</h3>
-                <div id="summaryOutput" class="prose prose-lg max-w-none text-gray-700">
-                    <!-- AI-generated summary will be injected here -->
+            <!-- Responsive padding -->
+            <div id="content-summary" class="p-6 md:p-8 info-card">
+
+                <!-- Person Card (Hidden by default) -->
+                <div id="person-card" style="display: none;">
+                    <h3 id="person-name">Person Details</h3>
+                    <div class="card-grid">
+                        <div class="data-point">
+                            <span class="data-label">Net Worth</span>
+                            <span class="data-value" id="person-net-worth"></span>
+                        </div>
+                        <div class="data-point">
+                            <span class="data-label">Criminal Cases</span>
+                            <span class="data-value" id="person-criminal-cases"></span>
+                        </div>
+                        <div class="data-point">
+                            <span class="data-label">Current Party</span>
+                            <span class="data-value" id="person-current-party"></span>
+                        </div>
+                        <div class="data-point">
+                            <span class="data-label">Previous Party</span>
+                            <span class="data-value" id="person-previous-party"></span>
+                        </div>
+                        <div class="data-point md:col-span-2">
+                            <span class="data-label">NGO Affiliation</span>
+                            <span class="data-value" id="person-ngo"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Party Card (Hidden by default) -->
+                <div id="party-card" style="display: none;">
+                    <h3 id="party-name">Party Details</h3>
+                    <div class="card-grid">
+                        <div class="data-point">
+                            <span class="data-label">Year Established</span>
+                            <span class="data-value" id="party-year"></span>
+                        </div>
+                        <div class="data-point">
+                            <span class="data-label">Founded By</span>
+                            <span class="data-value" id="party-founder"></span>
+                        </div>
+                        <div class="data-point md:col-span-2">
+                            <span class="data-label">Current Head / Leader</span>
+                            <span class="data-value" id="party-head"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- General Summary (for policies, etc.) -->
+                <div id="summaryOutput" style="display: none;">
+                    <h3 class="text-2xl font-bold mb-4 text-sky-800">Fact-Based Summary</h3>
+                    <div id="summary-text-content" class="prose prose-lg max-w-none text-gray-700">
+                        <!-- AI-generated summary will be injected here -->
+                    </div>
                 </div>
             </div>
 
             <!-- Sources Content -->
+            <!-- Responsive padding -->
             <div id="content-sources" class="p-6 md:p-8" style="display: none;">
                 <h3 class="text-2xl font-bold mb-4 text-sky-800">Information Sources</h3>
                 <p class="text-sm text-gray-600 mb-4">This summary was generated using facts from the following verified
@@ -153,9 +275,20 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Main search elements
             const analyzeButton = document.getElementById('analyzeButton');
             const searchQuery = document.getElementById('searchQuery');
             const language = document.getElementById('language');
+            
+            // Location search elements
+            const locationQuery = document.getElementById('locationQuery');
+            const findRepsButton = document.getElementById('findRepsButton');
+            const repSelection = document.getElementById('rep-selection');
+            const mpButton = document.getElementById('mpButton');
+            const mlaButton = document.getElementById('mlaButton');
+
+            // Shared elements
+            const perplexityApiKey = document.getElementById('perplexityApiKey');
             const loading = document.getElementById('loading');
             const results = document.getElementById('results');
             const error = document.getElementById('error');
@@ -167,7 +300,11 @@
             const contentSummary = document.getElementById('content-summary');
             const contentSources = document.getElementById('content-sources');
 
+            // Result Containers
+            const personCard = document.getElementById('person-card');
+            const partyCard = document.getElementById('party-card');
             const summaryOutput = document.getElementById('summaryOutput');
+            const summaryTextContent = document.getElementById('summary-text-content');
             const sourcesOutput = document.getElementById('sourcesOutput');
 
             // Tab switching logic
@@ -189,11 +326,29 @@
                 tabSummary.classList.remove('text-sky-600', 'border-sky-500');
             });
 
-            // Main analyze button click handler
+            /**
+             * Resets the UI state before a new request
+             * @param {boolean} clearReps - Whether to clear the rep selection box
+             */
+            function resetUI(clearReps = true) {
+                loading.style.display = 'flex';
+                results.style.display = 'none';
+                error.style.display = 'none';
+                if (clearReps) {
+                    repSelection.style.display = 'none';
+                }
+                personCard.style.display = 'none';
+                partyCard.style.display = 'none';
+                summaryOutput.style.display = 'none';
+                summaryTextContent.innerHTML = '';
+                sourcesOutput.innerHTML = '';
+            }
+
+            // Main analyze button click handler (for name/party search)
             analyzeButton.addEventListener('click', () => {
                 const query = searchQuery.value;
                 const lang = language.value;
-                const apiKey = document.getElementById('perplexityApiKey').value;
+                const apiKey = perplexityApiKey.value;
 
                 if (!query.trim()) {
                     showError('Please enter a search term.');
@@ -205,16 +360,41 @@
                     return;
                 }
 
-                // Reset UI
-                loading.style.display = 'flex';
-                results.style.display = 'none';
-                error.style.display = 'none';
-                summaryOutput.innerHTML = '';
-                sourcesOutput.innerHTML = '';
-
-                // Call the Perplexity API
+                resetUI();
                 callPerplexityAPI(query, lang, apiKey);
             });
+
+            // "Find Reps" button click handler (for location search)
+            findRepsButton.addEventListener('click', () => {
+                const query = locationQuery.value;
+                const apiKey = perplexityApiKey.value;
+
+                if (!query.trim()) {
+                    showError('Please enter a location.');
+                    return;
+                }
+                
+                if (!apiKey.trim()) {
+                    showError('Please enter your Perplexity API Key.');
+                    return;
+                }
+
+                resetUI();
+                callPerplexityForReps(query, apiKey);
+            });
+
+            // Handlers for the MP/MLA selection buttons
+            function handleRepButtonClick(event) {
+                const name = event.target.dataset.name;
+                if (name && name !== 'N/A') {
+                    searchQuery.value = name; // Put name in the main search box
+                    repSelection.style.display = 'none';
+                    analyzeButton.click(); // Trigger the main analysis flow
+                }
+            }
+            mpButton.addEventListener('click', handleRepButtonClick);
+            mlaButton.addEventListener('click', handleRepButtonClick);
+
 
             /**
              * Shows an error message in the UI.
@@ -225,46 +405,128 @@
                 error.style.display = 'block';
                 loading.style.display = 'none';
                 results.style.display = 'none';
+                repSelection.style.display = 'none';
             }
 
             /**
+             * NEW FUNCTION: Calls Perplexity just to find MP and MLA names
+             */
+            async function callPerplexityForReps(query, apiKey) {
+                const systemPrompt = `You are an AI assistant. Find the current Member of Parliament (MP) and Member of Legislative Assembly (MLA) for "${query}" in India. Return ONLY a JSON object with the format: {"mp_name": "...", "mla_name": "..."}. Use 'N/A' if not found.`;
+                const userQuery = `Find the MP and MLA for "${query}".`;
+                const apiUrl = "https://api.perplexity.ai/chat/completions";
+
+                const payload = {
+                    model: "sonar-pro",
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: userQuery }
+                    ]
+                };
+
+                try {
+                    const response = await fetchWithRetry(apiUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                    }
+
+                    const result = await response.json();
+                    const messageContent = result.choices?.[0]?.message?.content;
+                    if (!messageContent) {
+                        throw new Error("Invalid response structure from API.");
+                    }
+
+                    let repData;
+                    const jsonMatch = messageContent.match(/\{[\s\S]*\}/);
+                    if (jsonMatch && jsonMatch[0]) {
+                        repData = JSON.parse(jsonMatch[0]);
+                    } else {
+                        throw new Error("Failed to parse MP/MLA data from API response.");
+                    }
+
+                    loading.style.display = 'none';
+                    displayRepSelection(repData);
+
+                } catch (err) {
+                    console.error("Error in callPerplexityForReps:", err);
+                    showError(err.message || "Could not find representatives.");
+                }
+            }
+
+            /**
+             * NEW FUNCTION: Displays the MP/MLA selection buttons
+             */
+            function displayRepSelection(repData) {
+                const mpName = repData.mp_name || 'N/A';
+                const mlaName = repData.mla_name || 'N/A';
+
+                mpButton.textContent = `Get Details for MP: ${mpName}`;
+                mpButton.dataset.name = mpName;
+                mpButton.disabled = (mpName === 'N/A');
+
+                mlaButton.textContent = `Get Details for MLA: ${mlaName}`;
+                mlaButton.dataset.name = mlaName;
+                mlaButton.disabled = (mlaName === 'N/A');
+
+                repSelection.style.display = 'block';
+            }
+
+
+            /**
              * Calls the Perplexity API with the user's query and language.
+             * (This is the main function for getting person/party details)
              * @param {string} query - The user's search query.
              * @param {string} lang - The selected output language.
              * @param {string} apiKey - The user's Perplexity API key.
              */
             async function callPerplexityAPI(query, lang, apiKey) {
-                // This is the core instruction for the AI, fulfilling Problem Statement 3
-                const systemPrompt = `You are a non-partisan AI assistant for Indian voters ('JaagrukVoter'). Your purpose is to provide clear, simple, and strictly factual explanations about political candidates, parties, and policies in India.
-- Your response MUST be non-partisan and unbiased. Do not express opinions or take sides.
-- Stick to verifiable facts.
-- Convert complex political and policy information into simple, easy-to-understand explanations.
-- If analyzing media narratives, gently flag potential bias indicators (e.g., "This report uses strong emotional language" or "This article focuses heavily on one viewpoint") without accusing the source of 'bias'.
-- Your final response MUST be in ${lang}.
-- Do not make up information. If facts are not available, state that.
-- You MUST structure your response with Markdown headings for each section.`;
+                const systemPrompt = `You are a non-partisan AI assistant for Indian voters ('JaagrukVoter'). Your purpose is to provide clear, simple, and strictly factual explanations about political candidates, parties, and policies in India, based on verifiable public information.
 
-                const userQuery = `Using verified public information, please provide a non-partisan analysis of: "${query}".
-Structure your response with the following sections, using Markdown headings (e.g., "### General Summary"):
+- You MUST be non-partisan and unbiased. Do not express opinions.
+- First, identify the entity type (person, party, policy, other).
+- You MUST return a JSON object.
+- Use "N/A" for any specific fact that is not found or not applicable.
+- The final response MUST be in ${lang}.
 
-1. ### General Summary
-   (Provide their party, key positions held if a candidate. Explain what it aims to do if a policy. Describe core ideology if a party.)
+The JSON object structure MUST be:
+{
+  "entityType": "person|party|policy|other",
+  "personDetails": {
+    "name": "Full Name",
+    "netWorth": "...",
+    "criminalCases": "...",
+    "currentParty": "...",
+    "previousParty": "...",
+    "ngoAffiliation": "..."
+  },
+  "partyDetails": {
+    "name": "Party Name",
+    "yearEstablished": "...",
+    "founder": "...",
+    "head": "..."
+  },
+  "generalSummary": "A summary if the entity is a policy or 'other'."
+}
 
-2. ### Public Record & Background
-   (Detail professional background, political history, and any widely reported public records of legal cases or criminal charges, stated factually and neutrally.)
+- If the entity is a 'person', fill 'personDetails' and set 'partyDetails' to null.
+- If the entity is a 'party', fill 'partyDetails' and set 'personDetails' to null.
+- If the entity is 'policy' or 'other', fill 'generalSummary' and set both 'personDetails' and 'partyDetails' to null.`;
 
-3. ### Key Policy Stances / Platform
-   (List 3-5 key policy positions or platform points.)
-
-4. ### Neutral Analysis of Media/Public Narrative
-   (Gently flag potential bias indicators in common media narratives, e.g., "This report uses strong emotional language". If not applicable, state so.)
-
-Keep the language simple and neutral. If a section is not applicable or no information is found, clearly state "No public information found for this section." under the heading.`;
+                const userQuery = `Using verified public information, please analyze: "${query}".
+Identify the entity type and find the requested facts. If it is a policy or other topic, provide a general summary. Return ONLY the JSON object.`;
 
                 const apiUrl = "https://api.perplexity.ai/chat/completions";
 
                 const payload = {
-                    model: "sonar-pro", // Switched to the standard 'sonar-pro' online model
+                    model: "sonar-pro", // Use Perplexity's online model
                     messages: [
                         {
                             role: "system",
@@ -278,7 +540,6 @@ Keep the language simple and neutral. If a section is not applicable or no infor
                 };
 
                 try {
-                    // Implement fetch with exponential backoff for retries
                     const response = await fetchWithRetry(apiUrl, {
                         method: 'POST',
                         headers: {
@@ -289,32 +550,34 @@ Keep the language simple and neutral. If a section is not applicable or no infor
                     });
 
                     if (!response.ok) {
-                        // Try to get more detailed error from the API response body
                         let errorDetails = `API Error: ${response.status} ${response.statusText}`;
                         try {
                             const errorData = await response.json();
-                            // Perplexity/OpenAI errors often have this structure
                             if (errorData.error && errorData.error.message) {
                                 errorDetails = `API Error: ${errorData.error.message}`;
-                            } else {
-                                errorDetails = `API Error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`;
                             }
-                        } catch (e) {
-                            // Failed to parse JSON body, stick with original error
-                        }
+                        } catch (e) { /* Ignore JSON parse error */ }
                         throw new Error(errorDetails);
                     }
 
                     const result = await response.json();
                     
-                    if (!result.choices || !result.choices[0] || !result.choices[0].message || !result.choices[0].message.content) {
+                    const messageContent = result.choices?.[0]?.message?.content;
+                    if (!messageContent) {
                         throw new Error("Invalid response structure from API.");
                     }
 
-                    // 1. Get the generated text
-                    const generatedText = result.choices[0].message.content;
+                    // 1. Extract the structured JSON data
+                    let responseData;
+                    const jsonMatch = messageContent.match(/\{[\s\S]*\}/);
+                    if (jsonMatch && jsonMatch[0]) {
+                        responseData = JSON.parse(jsonMatch[0]);
+                    } else {
+                        throw new Error("Failed to parse JSON from API response.");
+                    }
 
-                    // 2. Get the grounding sources from Perplexity's response
+
+                    // 2. Extract grounding sources (Perplexity's format)
                     let sources = [];
                     if (result.search_results && result.search_results.length > 0) {
                         sources = result.search_results.map(source => ({
@@ -325,24 +588,63 @@ Keep the language simple and neutral. If a section is not applicable or no infor
                     
                     // Hide loading and display results
                     loading.style.display = 'none';
-                    displayResults(generatedText, sources);
+                    displayResults(responseData, sources);
 
                 } catch (err) {
                     console.error("Error in callPerplexityAPI:", err);
-                    // Pass the more detailed error message to the UI
-                    showError(err.message);
+                    showError(err.message || "An unknown error occurred.");
                 }
             }
 
             /**
-             * Populates the UI with the results from the API.
-             * @param {string} summary - The AI-generated summary text.
+             * Populates the UI with the structured data from the API.
+             * @param {object} data - The parsed JSON object from the AI.
              * @param {Array} sources - An array of source objects {uri, title}.
              */
-            function displayResults(summary, sources) {
-                // Simple Markdown-to-HTML (replaces newlines with <br>)
-                summaryOutput.innerHTML = simpleMarkdownToHTML(summary);
+            function displayResults(data, sources) {
+                // Hide all containers first
+                personCard.style.display = 'none';
+                partyCard.style.display = 'none';
+                summaryOutput.style.display = 'none';
+                
+                // Helper to populate text, using "N/A" as fallback
+                const fill = (id, text) => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.textContent = text || "N/A";
+                    }
+                };
 
+                switch (data.entityType) {
+                    case 'person':
+                        const p = data.personDetails || {};
+                        fill('person-name', p.name || searchQuery.value); // Use query as fallback name
+                        fill('person-net-worth', p.netWorth);
+                        fill('person-criminal-cases', p.criminalCases);
+                        fill('person-current-party', p.currentParty);
+                        fill('person-previous-party', p.previousParty);
+                        fill('person-ngo', p.ngoAffiliation);
+                        personCard.style.display = 'block';
+                        break;
+                    case 'party':
+                        const party = data.partyDetails || {};
+                        fill('party-name', party.name || searchQuery.value); // Use query as fallback name
+                        fill('party-year', party.yearEstablished);
+                        fill('party-founder', party.founder);
+                        fill('party-head', party.head);
+                        partyCard.style.display = 'block';
+                        break;
+                    case 'policy':
+                    case 'other':
+                    default:
+                        // Clean up the summary text, remove any asterisks
+                        const cleanSummary = (data.generalSummary || "No summary available.").replace(/\*/g, '');
+                        summaryTextContent.innerHTML = cleanSummary.replace(/\n/g, '<br>');
+                        summaryOutput.style.display = 'block';
+                        break;
+                }
+
+                // Populate sources
                 if (sources.length > 0) {
                     sourcesOutput.innerHTML = ''; // Clear any old sources
                     sources.forEach(source => {
@@ -363,28 +665,6 @@ Keep the language simple and neutral. If a section is not applicable or no infor
                 results.style.display = 'block';
                 // Default to summary tab
                 tabSummary.click();
-            }
-
-            /**
-             * A simple markdown-to-HTML converter.
-             * Handles ### headings and newlines.
-             * @param {string} text - The markdown text from the AI.
-             * @returns {string} - The converted HTML.
-             */
-            function simpleMarkdownToHTML(text) {
-                // 1. Split the whole text by double newlines to get "blocks"
-                return text.split('\n\n').map(block => {
-                    block = block.trim(); // Clean up whitespace
-
-                    if (block.startsWith('### ')) {
-                        // It's a heading
-                        return `<h3>${block.substring(4)}</h3>`;
-                    } else if (block.length > 0) {
-                        // It's a paragraph. Replace single newlines with <br> for line breaks within a paragraph.
-                        return `<p>${block.replace(/\n/g, '<br>')}</p>`;
-                    }
-                    return ''; // Ignore empty blocks
-                }).join('');
             }
 
             /**
@@ -416,7 +696,7 @@ Keep the language simple and neutral. If a section is not applicable or no infor
                         await new Promise(resolve => setTimeout(resolve, backoff * Math.pow(2, i)));
                     }
                 }
-                throw lastError;
+                throw lastError || new Error("Fetch failed after multiple retries.");
             }
 
         });
