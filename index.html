@@ -495,6 +495,7 @@
 - You MUST return a JSON object.
 - Use "N/A" for any specific fact that is not found or not applicable.
 - The final response MUST be in ${lang}.
+- When filling 'personDetails' for a politician, *prioritize searching for their latest election affidavit* (e.g., from MyNeta.info or ECI) to find 'netWorth' and 'criminalCases'.
 
 The JSON object structure MUST be:
 {
@@ -521,7 +522,9 @@ The JSON object structure MUST be:
 - If the entity is 'policy' or 'other', fill 'generalSummary' and set both 'personDetails' and 'partyDetails' to null.`;
 
                 const userQuery = `Using verified public information, please analyze: "${query}".
-Identify the entity type and find the requested facts. If it is a policy or other topic, provide a general summary. Return ONLY the JSON object.`;
+Identify the entity type and find the requested facts.
+If the query is about a person, *specifically search for their latest election affidavit data* to find their net worth and criminal cases.
+Return ONLY the JSON object.`;
 
                 const apiUrl = "https://api.perplexity.ai/chat/completions";
 
