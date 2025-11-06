@@ -328,6 +328,19 @@
             <button id="speakFactsBtn" class="flex-1 bg-gradient-to-r from-sky-500 to-sky-700 text-white py-2 rounded-md hover:from-sky-600 hover:to-sky-800 transition-all">🗣️ Speak Facts</button>
             <button id="closeChatBtn" class="bg-gray-200 px-3 rounded-md hover:bg-gray-300">❌</button>
         </div>
+
+        <!-- --- NEW CHATBOT --- -->
+        <div class="border-t border-gray-200 mt-4 pt-3">
+            <h4 class="text-md font-semibold text-sky-700 mb-2">💬 Ask a Question</h4>
+            <div id="textChatHistory" class="chat-messages h-40 overflow-y-auto mb-3 text-sm bg-sky-50 rounded-lg p-2">
+                <p class="text-gray-700">Ask me anything about Indian politics!</p>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="chatInput" class="flex-1 w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500" placeholder="Type here...">
+                <button id="sendChatBtn" class="flex-shrink-0 bg-sky-600 text-white px-4 rounded-md hover:bg-sky-700 transition-all">Send</button>
+            </div>
+        </div>
+        <!-- --- END NEW CHATBOT --- -->
     </div>
     <!-- --- END MYSTERY HTML --- -->
 
@@ -374,6 +387,16 @@
             const speakFactsBtn = document.getElementById('speakFactsBtn');
             const closeChatBtn = document.getElementById('closeChatBtn');
             const chatMessages = document.getElementById('chatMessages');
+
+            // --- NEW CHATBOT ELEMENTS ---
+            const textChatHistory = document.getElementById('textChatHistory');
+            const chatInput = document.getElementById('chatInput');
+            const sendChatBtn = document.getElementById('sendChatBtn');
+
+            // --- CHATBOT HISTORY ---
+            let chatMessagesHistory = [
+                { role: "system", content: "You are JaagrukVoter, a helpful and non-partisan AI assistant for Indian voters. Answer questions factually and neutrally. Keep responses concise and brief for this small chat window." }
+            ];
 
             // --- REMOVED OLD CHATBOT STATE ---
 
@@ -561,7 +584,8 @@
                 const systemPrompt = `You are a non-partisan AI assistant for Indian voters ('JaagrukVoter'). Your purpose is to provide clear, simple, and strictly factual explanations about political candidates, parties, and policies in India, based on verifiable public information.
 
 - You MUST be non-partisan and unbiased. Do not express opinions.
-- First, identify the entity type (person, party, policy, other).
+- First, you MUST identify the entity type (person, party, policy, other).
+- If the query is clearly about a person (e.g., 'Narendra Modi', 'B. Y. Raghavendra'), the entityType MUST be 'person'.
 - You MUST return a JSON object.
 - Use "N/A" for any specific fact that is not found or not applicable.
 - The final response MUST be in ${lang}.
@@ -687,7 +711,7 @@ Return ONLY the JSON object.`;
                     const el = document.getElementById(id);
                     if (el) {
                         // MODIFIED: Clean the text of citations (e.g., [1][2]) before displaying
-                        const cleanText = (text || "N/A")
+                        const cleanText = (text || "N/A") // <-- MODIFIED: Changed fallback back to "N/A"
                             .replace(/(\[[0-9WQ, ]+\])+/g, '') // Removes [1], [WQ], [1, 2], etc.
                             .trim(); // Removes leftover whitespace
                         el.textContent = cleanText;
@@ -744,6 +768,11 @@ Return ONLY the JSON object.`;
                     sourcesOutput.innerHTML = '<li>No public sources were cited for this summary.</li>';
                 }
 
+                // --- MODIFICATION START ---
+                // Call the money rain function
+                triggerMoneyRain();
+                // --- MODIFICATION END ---
+
                 results.style.display = 'block';
                 // Default to summary tab
                 tabSummary.click();
@@ -780,6 +809,41 @@ Return ONLY the JSON object.`;
                 }
                 throw lastError || new Error("Fetch failed after multiple retries.");
             }
+
+            
+            // --- NEW FUNCTION: MONEY RAIN ---
+            /**
+             * Creates a money rain animation when data is fetched successfully
+             */
+            function triggerMoneyRain() {
+                const container = document.body;
+
+                for (let i = 0; i < 30; i++) { // Number of falling notes
+                    const money = document.createElement('div');
+                    money.textContent = '💸';
+                    money.style.position = 'fixed';
+                    money.style.top = '-50px';
+                    money.style.left = Math.random() * window.innerWidth + 'px';
+                    money.style.fontSize = Math.random() * 30 + 20 + 'px';
+                    money.style.opacity = Math.random() * 0.8 + 0.2;
+                    money.style.zIndex = 9999;
+                    money.style.pointerEvents = 'none';
+                    money.style.transition = 'transform 3s ease-in, opacity 3s ease-in';
+
+                    container.appendChild(money);
+
+                    setTimeout(() => {
+                        money.style.transform = `translateY(${window.innerHeight + 100}px) rotate(${Math.random() * 360}deg)`;
+                        money.style.opacity = 0;
+                    }, 100);
+
+                    // Remove after animation
+                    setTimeout(() => {
+                        money.remove();
+                    }, 3500 + Math.random() * 1000);
+                }
+            }
+            // --- END MONEY RAIN FUNCTION ---
 
 
             // --- NEW, SIMPLIFIED MYSTERY BOTTLE FUNCTIONS ---
@@ -860,6 +924,161 @@ Return ONLY the JSON object.`;
             });
             
             // --- END MYSTERY BOTTLE FUNCTIONS ---
+
+
+            // --- NEW CHATBOT FUNCTIONS ---
+
+            /**
+             * Handles sending a user's chat message.
+             */
+            async function handleChatSend() {
+                const userText = chatInput.value.trim();
+                const apiKey = perplexityApiKey.value; // Get API key
+
+                if (!userText) return;
+                
+                if (!apiKey.trim()) {
+                    addChatMessage('system', 'Please enter your Perplexity API Key in the main app to use the chat.');
+                    return;
+                }
+
+                // Display user message
+                addChatMessage('user', userText);
+                chatInput.value = '';
+
+                // Add to history
+                chatMessagesHistory.push({ role: "user", content: userText });
+
+                // Add loading indicator
+                const loadingEl = addChatMessage('bot', '...', true); // true for loading
+
+                try {
+                    const botResponse = await callChatbotAPI(chatMessagesHistory, apiKey);
+                    
+                    // Update loading message with real response
+                    const span = loadingEl.querySelector('span'); // Get the span
+                    if (span) {
+                        span.textContent = botResponse; 
+                        span.classList.remove('animate-pulse'); // Stop pulsing
+                        span.className = 'bg-gray-100 rounded-lg px-2 py-1 inline-block'; // Add normal style
+                    }
+
+                    // Add to history
+                    chatMessagesHistory.push({ role: "assistant", content: botResponse });
+
+                    // Keep history short (e.g., last 10 messages)
+                    if (chatMessagesHistory.length > 11) { // 1 system + 5 pairs
+                        chatMessagesHistory = [chatMessagesHistory[0], ...chatMessagesHistory.slice(-10)];
+                    }
+
+                } catch (err) {
+                    const span = loadingEl.querySelector('span'); // Get the span
+                    if (span) {
+                        span.textContent = "Sorry, I couldn't get a response. " + (err.message || "Unknown error");
+                        span.classList.remove('animate-pulse');
+                    }
+                }
+            }
+
+            /**
+             * Adds a message to the text chat UI.
+             * @param {string} sender - 'user', 'bot', or 'system'
+             * @param {string} message - The text content of the message
+             * @param {boolean} isLoading - Whether this is a loading placeholder
+             * @returns {HTMLElement} - The created message element
+             */
+            function addChatMessage(sender, message, isLoading = false) {
+                const msg = document.createElement('p');
+                
+                // Remove initial message if it exists
+                const initialMessage = textChatHistory.querySelector('p.text-gray-700');
+                if (initialMessage && initialMessage.textContent.includes('Ask me anything')) {
+                    initialMessage.remove();
+                }
+
+                if (sender === 'user') {
+                    msg.className = 'text-right text-gray-800 mb-1';
+                    const span = document.createElement('span');
+                    span.className = 'bg-sky-100 rounded-lg px-2 py-1 inline-block';
+                    span.textContent = message; // Safe
+                    msg.appendChild(span);
+                } else if (sender === 'bot') {
+                    msg.className = 'text-left text-sky-900 mb-1';
+                    const strong = document.createElement('strong');
+                    strong.textContent = 'Jaagruk: ';
+                    msg.appendChild(strong);
+
+                    const span = document.createElement('span');
+                    if (isLoading) {
+                        span.className = 'animate-pulse';
+                        span.textContent = '...';
+                    } else {
+                        span.className = 'bg-gray-100 rounded-lg px-2 py-1 inline-block';
+                        span.textContent = message; // Safe
+                    }
+                    msg.appendChild(span);
+                } else { // system
+                    msg.className = 'text-center text-red-600 text-xs italic mb-1';
+                    msg.textContent = message; // Safe
+                }
+                
+                textChatHistory.appendChild(msg);
+                textChatHistory.scrollTop = textChatHistory.scrollHeight;
+                return msg; // Return the element in case we need to update it (for loading)
+            }
+
+            /**
+             * Calls the Perplexity API for a conversational response.
+             * @param {Array} messages - The chat history
+             * @param {string} apiKey - The Perplexity API key
+             * @returns {Promise<string>} - The bot's text response
+             */
+            async function callChatbotAPI(messages, apiKey) {
+                const apiUrl = "https://api.perplexity.ai/chat/completions";
+
+                const payload = {
+                    model: "sonar-pro", // Conversational model
+                    messages: messages // Pass the whole history
+                };
+
+                const response = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    let errorDetails = `API Error: ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        errorDetails = errorData.error?.message || `API Error ${response.status}`;
+                    } catch (e) { /* Ignore JSON parse error */ }
+                    throw new Error(errorDetails);
+                }
+
+                const result = await response.json();
+                const botMessage = result.choices?.[0]?.message?.content;
+
+                if (!botMessage) {
+                    throw new Error("Invalid response from API.");
+                }
+
+                return botMessage;
+            }
+
+            // Event Listeners for Chat
+            sendChatBtn.addEventListener('click', handleChatSend);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault(); // Prevent newline in input
+                    handleChatSend();
+                }
+            });
+
+            // --- END CHATBOT FUNCTIONS ---
 
         });
     </script>
