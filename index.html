@@ -15,6 +15,19 @@
 
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
+        /* NEW: Animated Gradient Background Keyframes */
+        @keyframes animatedBackground {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
         /* Simple loading spinner */
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
@@ -65,10 +78,34 @@
         #summaryOutput p {
             @apply mb-4 text-gray-800;
         }
+
+        /* --- REMOVED OLD CHATBOT STYLES --- */
+
+        /* --- NEW MYSTERY BOTTLE STYLES --- */
+        #mysteryBottle {
+            @apply fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-b from-sky-700 to-sky-400 rounded-full shadow-xl cursor-pointer hover:scale-110 transition-transform duration-300 flex items-center justify-center text-3xl font-bold;
+        }
+
+        #chatBox {
+            @apply fixed bottom-28 right-8 bg-white text-gray-900 rounded-2xl shadow-2xl w-80 p-4 border border-sky-200 z-50 transition-all duration-300 transform;
+        }
+        
+        /* State for chatbox when hidden */
+        #chatBox.hidden {
+            @apply opacity-0 scale-95 translate-y-4;
+            visibility: hidden;
+        }
+        
+        #chatBox .chat-messages {
+            @apply h-40 overflow-y-auto mb-3 text-sm bg-sky-50 rounded-lg p-2;
+        }
+        /* --- END MYSTERY BOTTLE STYLES --- */
+
     </style>
 </head>
 
-<body class="bg-sky-100 text-gray-900 min-h-screen">
+<!-- MODIFIED: Removed bg-sky-100 and added inline style for dynamic background -->
+<body class="text-gray-900 min-h-screen" style="background: linear-gradient(270deg, #e0f2fe, #f0f9ff, #e0f2fe); background-size: 600% 600%; animation: animatedBackground 16s ease infinite;">
     <!-- Main container with responsive padding -->
     <div class="container mx-auto max-w-3xl p-4 pt-8 md:pt-12">
 
@@ -144,7 +181,8 @@
 
             <!-- Shared API Key Input -->
             <div class="mt-6 border-t border-gray-200 pt-6">
-                <label for="perplexityApiKey" class="block text-sm font-medium text-gray-700 mb-1">Perplexity API Key (Required for all searches)</label>
+                <!-- MODIFIED: Updated label -->
+                <label for="perplexityApiKey" class="block text-sm font-medium text-gray-700 mb-1">Perplexity API Key (Required for Search)</label>
                 <input type="password" id="perplexityApiKey"
                     class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500"
                     placeholder="Enter your Perplexity API Key">
@@ -273,6 +311,27 @@
 
     </div>
 
+    <!-- --- MODIFIED/NEW MYSTERY HTML --- -->
+
+    <!-- Hidden Mystery Element -->
+    <div id="mysteryBottle" class="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-b from-sky-700 to-sky-400 rounded-full shadow-xl cursor-pointer hover:scale-110 transition-transform duration-300 flex items-center justify-center text-3xl font-bold">
+        🧴
+    </div>
+
+    <!-- Hidden Chat Box -->
+    <div id="chatBox" class="hidden fixed bottom-28 right-8 bg-white text-gray-900 rounded-2xl shadow-2xl w-80 p-4 border border-sky-200 z-50">
+        <h3 class="text-lg font-semibold text-sky-700 mb-2">🗣️ Jaagruk Voice Assistant</h3>
+        <div class="chat-messages h-40 overflow-y-auto mb-3 text-sm bg-sky-50 rounded-lg p-2" id="chatMessages">
+            <p class="text-gray-700">Hi! I can speak out the facts shown on your screen. Click the 🗣️ Speak Facts button below to hear them aloud!</p>
+        </div>
+        <div class="flex gap-2">
+            <button id="speakFactsBtn" class="flex-1 bg-gradient-to-r from-sky-500 to-sky-700 text-white py-2 rounded-md hover:from-sky-600 hover:to-sky-800 transition-all">🗣️ Speak Facts</button>
+            <button id="closeChatBtn" class="bg-gray-200 px-3 rounded-md hover:bg-gray-300">❌</button>
+        </div>
+    </div>
+    <!-- --- END MYSTERY HTML --- -->
+
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Main search elements
@@ -306,6 +365,17 @@
             const summaryOutput = document.getElementById('summaryOutput');
             const summaryTextContent = document.getElementById('summary-text-content');
             const sourcesOutput = document.getElementById('sourcesOutput');
+
+            // --- REMOVED OLD CHATBOT ELEMENTS ---
+
+            // --- NEW MYSTERY BOTTLE ELEMENTS ---
+            const bottle = document.getElementById('mysteryBottle');
+            const chatBox = document.getElementById('chatBox');
+            const speakFactsBtn = document.getElementById('speakFactsBtn');
+            const closeChatBtn = document.getElementById('closeChatBtn');
+            const chatMessages = document.getElementById('chatMessages');
+
+            // --- REMOVED OLD CHATBOT STATE ---
 
             // Tab switching logic
             tabSummary.addEventListener('click', () => {
@@ -356,7 +426,7 @@
                 }
                 
                 if (!apiKey.trim()) {
-                    showError('Please enter your Perplexity API Key.');
+                    showError('Please enter your Perplexity API Key.'); // MODIFIED
                     return;
                 }
 
@@ -375,7 +445,7 @@
                 }
                 
                 if (!apiKey.trim()) {
-                    showError('Please enter your Perplexity API Key.');
+                    showError('Please enter your Perplexity API Key.'); // MODIFIED
                     return;
                 }
 
@@ -495,7 +565,9 @@
 - You MUST return a JSON object.
 - Use "N/A" for any specific fact that is not found or not applicable.
 - The final response MUST be in ${lang}.
-- When filling 'personDetails' for a politician, *prioritize searching for their latest election affidavit* (e.g., from MyNeta.info or ECI) to find 'netWorth' and 'criminalCases'.
+- When filling 'personDetails' for a politician:
+  1. Search general public information for 'currentParty', 'previousParty', and 'ngoAffiliation'.
+  2. *Also* prioritize searching their latest election affidavit (from sources like MyNeta.info or ECI) to find 'netWorth' and 'criminalCases'.
 
 The JSON object structure MUST be:
 {
@@ -523,7 +595,7 @@ The JSON object structure MUST be:
 
                 const userQuery = `Using verified public information, please analyze: "${query}".
 Identify the entity type and find the requested facts.
-If the query is about a person, *specifically search for their latest election affidavit data* to find their net worth and criminal cases.
+If the query is about a person, search general public info for their party history and affiliations, AND *also* specifically search their latest election affidavit data (e.C., from MyNeta.info) for 'netWorth' and 'criminalCases'.
 Return ONLY the JSON object.`;
 
                 const apiUrl = "https://api.perplexity.ai/chat/completions";
@@ -614,7 +686,11 @@ Return ONLY the JSON object.`;
                 const fill = (id, text) => {
                     const el = document.getElementById(id);
                     if (el) {
-                        el.textContent = text || "N/A";
+                        // MODIFIED: Clean the text of citations (e.g., [1][2]) before displaying
+                        const cleanText = (text || "N/A")
+                            .replace(/(\[[0-9WQ, ]+\])+/g, '') // Removes [1], [WQ], [1, 2], etc.
+                            .trim(); // Removes leftover whitespace
+                        el.textContent = cleanText;
                     }
                 };
 
@@ -640,8 +716,11 @@ Return ONLY the JSON object.`;
                     case 'policy':
                     case 'other':
                     default:
-                        // Clean up the summary text, remove any asterisks
-                        const cleanSummary = (data.generalSummary || "No summary available.").replace(/\*/g, '');
+                        // MODIFIED: Clean up the summary text, remove asterisks and citations
+                        const cleanSummary = (data.generalSummary || "No summary available.")
+                            .replace(/\*/g, '') // Remove asterisks
+                            .replace(/(\[[0-9WQ, ]+\])+/g, '') // Remove citations
+                            .trim();
                         summaryTextContent.innerHTML = cleanSummary.replace(/\n/g, '<br>');
                         summaryOutput.style.display = 'block';
                         break;
@@ -701,6 +780,86 @@ Return ONLY the JSON object.`;
                 }
                 throw lastError || new Error("Fetch failed after multiple retries.");
             }
+
+
+            // --- NEW, SIMPLIFIED MYSTERY BOTTLE FUNCTIONS ---
+
+            // Toggle chat visibility
+            bottle.addEventListener('click', () => {
+                chatBox.classList.toggle('hidden');
+            });
+
+            closeChatBtn.addEventListener('click', () => {
+                chatBox.classList.add('hidden');
+            });
+
+            // Helper to add a message to the new chat box
+            function addMessageToBox(text) {
+                const msg = document.createElement('p');
+                msg.className = 'text-gray-700';
+                msg.textContent = text;
+                chatMessages.innerHTML = ''; // Clear previous messages
+                chatMessages.appendChild(msg);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            // Text-to-Speech Functionality
+            function speakText(text) {
+                if (!text || text.trim() === '') {
+                    // Replaced alert() with a message in the chat box
+                    addMessageToBox('No information available to read.');
+                    return;
+                }
+                
+                // Stop any previous speech
+                window.speechSynthesis.cancel();
+                
+                const speech = new SpeechSynthesisUtterance(text);
+                speech.lang = 'en-IN';
+                speech.pitch = 1;
+                speech.rate = 1;
+                speech.volume = 1;
+                window.speechSynthesis.speak(speech);
+            }
+
+            // On Speak Facts button click, read visible data
+            speakFactsBtn.addEventListener('click', () => {
+                let textToRead = '';
+                let readingWhat = '';
+
+                // Gather visible data dynamically
+                const personCard = document.getElementById('person-card');
+                const partyCard = document.getElementById('party-card');
+                const summaryOutput = document.getElementById('summaryOutput');
+
+                if (personCard && personCard.style.display !== 'none') {
+                    readingWhat = 'Reading Person Details...';
+                    textToRead = `Person Details: Name: ${document.getElementById('person-name').textContent}. ` +
+                                `Net Worth: ${document.getElementById('person-net-worth').textContent}. ` +
+                                `Criminal Cases: ${document.getElementById('person-criminal-cases').textContent}. ` +
+                                `Current Party: ${document.getElementById('person-current-party').textContent}. ` +
+                                `Previous Party: ${document.getElementById('person-previous-party').textContent}. ` +
+                                `NGO Affiliation: ${document.getElementById('person-ngo').textContent}.`;
+                } else if (partyCard && partyCard.style.display !== 'none') {
+                    readingWhat = 'Reading Party Details...';
+                    textToRead = `Party Details: Name: ${document.getElementById('party-name').textContent}. ` +
+                                `Year Established: ${document.getElementById('party-year').textContent}. ` +
+                                `Founded By: ${document.getElementById('party-founder').textContent}. ` +
+                                `Current Head: ${document.getElementById('party-head').textContent}.`;
+                } else if (summaryOutput && summaryOutput.style.display !== 'none') {
+                    readingWhat = 'Reading Summary...';
+                    textToRead = document.getElementById('summary-text-content').innerText;
+                } else {
+                    readingWhat = 'No visible information to speak yet! Try analyzing a candidate or policy first.';
+                    textToRead = readingWhat;
+                }
+
+                // Add chat feedback
+                addMessageToBox(readingWhat);
+                speakText(textToRead);
+            });
+            
+            // --- END MYSTERY BOTTLE FUNCTIONS ---
 
         });
     </script>
